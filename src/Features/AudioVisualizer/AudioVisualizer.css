@@ -1,0 +1,12 @@
+.audioVisualizerContainer{
+  width: 95%;
+  height: 95%;
+  display: inline-block;
+  box-shadow: 5px 10px 10px black;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid black;
+  position: relative;
+  min-width: 375px;
+  min-height: 400px;
+}
