@@ -15,6 +15,17 @@ export default function GridSimulator({ audioRef }) {
         const gridSize = 16;
         const cellSize = canvas.width / gridSize;
 
+        const getHeightColor = (height) => {
+            // height: 0 to 15 (0 = bottom, 15 = top of the 16x16 grid)
+            
+            // Blue (bottom) -> Purple -> Red (top) gradient
+            const r = Math.min(255, Math.floor(height * 16));        // Red increases with height
+            const g = 0;                                            // No green
+            const b = Math.max(0, Math.floor(255 - (height * 16))); // Blue decreases with height
+            
+            return { r, g, b };
+        };
+
         // When the audio begins to play
         const handlePlay = () => {
             if (!audioContextRef.current) {
@@ -66,14 +77,8 @@ export default function GridSimulator({ audioRef }) {
                 for (let y = 0; y < gridSize; y++) {
                     let color = { r: 0, g: 0, b: 0 };
                     if (gridSize - 1 - y < height) {
-                        const levelFromBottom = gridSize - 1 - y;
-                        if (levelFromBottom < 5) {
-                            color = { r: 0, g: 255, b: 0 };
-                        } else if (levelFromBottom < 10) {
-                            color = { r: 255, g: 255, b: 0 };
-                        } else {
-                            color = { r: 255, g: 0, b: 0 };
-                        }
+                        const pixelHeight = gridSize - 1 - y;
+                        color = getHeightColor(pixelHeight);
                     }
                     ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
                     ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
