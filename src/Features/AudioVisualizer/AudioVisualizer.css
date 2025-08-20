@@ -9,12 +9,16 @@
   position: relative;
   min-width: 375px;
   min-height: 400px;
+  text-align: center;
+}
+.audioControllerContainer{
+  position: absolute;
+  width: 100%;
+  bottom: 0;
 }
 .audioControllerBox{
-  position: absolute;
-  bottom: 20px;
-  width: 400px;
-  left: calc(50% - 200px);
+  margin-bottom: 20px;
+  display: inline-block;
 }
 .titleBox{
   position: absolute;
@@ -30,4 +34,18 @@
   color: white;
   text-align: center;
   display: inline-block;
+}
+.switchesBox{
+  display: flex;
+  justify-content: space-between;
+}
+.switchBox{
+  width: 50%;
+  border: 1px solid black;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.333);
 }

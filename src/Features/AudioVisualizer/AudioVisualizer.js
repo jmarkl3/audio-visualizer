@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Upload } from "antd"
+import { Button, Switch, Upload } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
 import "./AudioVisualizer.css"
 import GridSimulatorWAS from "./GridSimulatorWAS.js"
@@ -12,6 +12,8 @@ export default function AudioVisualizer() {
     const [audioUrl, setAudioUrl] = useState()
     const [audioName, setAudioName] = useState()
     const [gridData, setGridData] = useState()
+    const [sendGridData, setSendGridData] = useState()
+    const [recieveGridData, setRecieveGridData] = useState()
     const audioRef = useRef()
 
     // Custom hook keeps an up to date grid (refreshing about 60 times/second)
@@ -70,9 +72,28 @@ export default function AudioVisualizer() {
             <GridSimulator gridData={gridData}></GridSimulator>
 
             {/* Audio Player */}
-            <div className='audioControllerBox'>
-                <div style={{marginBottom: "10px"}}>{audioName}</div>
-                <audio controls src={audioUrl} ref={audioRef}/>
+            <div className='audioControllerContainer'>
+                <div className='audioControllerBox'>
+                   
+                    {/* Loaded song name */}
+                    <div style={{marginBottom: "10px"}}>{audioName}</div>
+                    
+                    {/* Audio controller */}
+                    <audio controls src={audioUrl} ref={audioRef}/>
+                    
+                    {/* Switches */}
+                    <div className='switchesBox'>
+                        <div className='switchBox'>
+                            <Switch checked={sendGridData} onChange={setSendGridData}></Switch>
+                            {sendGridData ? "Sending...":"Send"}
+                        </div>
+                        <div className='switchBox'>
+                            <Switch checked={recieveGridData} onChange={setRecieveGridData}></Switch>
+                            {recieveGridData ? "receiving...":"receive"}
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </div>
