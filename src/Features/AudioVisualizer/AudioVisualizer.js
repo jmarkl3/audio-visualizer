@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Button, Upload } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
 import "./AudioVisualizer.css"
+import GridSimulator from "./GridSimulator.js"
 
 export default function AudioVisualizer() {
 
     const [audioUrl, setAudioUrl] = useState()
     const [audioName, setAudioName] = useState()
+    const audioRef = useRef()
 
     function processFile(file){
         if(!file) return
@@ -23,6 +25,8 @@ export default function AudioVisualizer() {
 
     return (
         <div className='audioVisualizerContainer'>
+            
+            {/* Title and uploader */}
             <div className={"titleBox"}>
 
                 {/* Title */}
@@ -40,10 +44,13 @@ export default function AudioVisualizer() {
                 </div>
             </div>
 
+            {/* Display */}
+            <GridSimulator audioRef={audioRef}></GridSimulator>
+            
             {/* Audio Player */}
             <div className='audioControllerBox'>
                 <div style={{marginBottom: "10px"}}>{audioName}</div>
-                <audio controls src={audioUrl}/>
+                <audio controls src={audioUrl} ref={audioRef}/>
             </div>
 
         </div>
