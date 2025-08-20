@@ -10,3 +10,24 @@
   min-width: 375px;
   min-height: 400px;
 }
+.audioControllerBox{
+  position: absolute;
+  bottom: 20px;
+  width: 400px;
+  left: calc(50% - 200px);
+}
+.titleBox{
+  position: absolute;
+  top: 0px;
+  width: 400px;
+  left: calc(50% - 200px);
+}
+.titleBoxTitle{
+  font-size: 20px;
+}
+.uploader{
+  width: 200px;
+  color: white;
+  text-align: center;
+  display: inline-block;
+}

@@ -6,10 +6,13 @@ import "./AudioVisualizer.css"
 export default function AudioVisualizer() {
 
     const [audioUrl, setAudioUrl] = useState()
+    const [audioName, setAudioName] = useState()
 
     function processFile(file){
         if(!file) return
 
+        // Save the name
+        setAudioName(file?.name)
         // Create a local URL for the file
         const url = URL.createObjectURL(file);
         setAudioUrl(url);
@@ -20,6 +23,8 @@ export default function AudioVisualizer() {
 
     return (
         <div className='audioVisualizerContainer'>
+            <div className={"titleBox"}>
+
                 {/* Title */}
                 <h3>Audio Visualizer</h3>
 
@@ -33,7 +38,11 @@ export default function AudioVisualizer() {
                         <Button icon={<UploadOutlined/>}>Upload</Button>
                     </Upload>
                 </div>
-            <div style={{marginTop: "10px"}}>
+            </div>
+
+            {/* Audio Player */}
+            <div className='audioControllerBox'>
+                <div style={{marginBottom: "10px"}}>{audioName}</div>
                 <audio controls src={audioUrl}/>
             </div>
 
