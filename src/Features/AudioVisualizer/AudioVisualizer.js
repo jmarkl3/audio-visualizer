@@ -31,10 +31,9 @@ export default function AudioVisualizer() {
     // Ref to the audio player
     const audioRef = useRef()
 
-    // Custom hook keeps an up to date grid (refreshing about 60 times/second)
-    // const { gridData: generagedGridData } = useGridGenerator(audioRef);
+    // This hook maintains an up to date grid (refreshing about 60 times/second)
     const { getGrid } = useGridGenerator(audioRef);
-    
+    // This hook maintains a Socket.io socket 
     const { send, socket, isConnected: socketIsConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
 
     // Upload processing
@@ -75,14 +74,14 @@ export default function AudioVisualizer() {
     useEffect(() => {
 
         // Callback function so it can be removed in cleanup
-        const handleUpdate = (newGrid) => setGridData(newGrid);
+        const handleUpdate = (newGrid) => setGridData(newGrid)
       
         // If there is a socket and receiveGridData is on create a listener
         if (socket && socketIsConnected && receiveGridData) {
           socket.on('update-grid', handleUpdate);
         }
       
-        // On rerun (socket or receiveGridData change) cleanup the listener
+        // On re-run (socket or receiveGridData change) cleanup the listener
         return () => {
           if (socket) {
             socket.off('update-grid', handleUpdate);
