@@ -9,8 +9,8 @@ export default function GridSimulator8x12({ gridData }) {
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        const gridWidth = 12;
         const gridHeight = 8;
+        const gridWidth = 12;
         const cellSize = 40; // Square cells: 40px x 40px
         const canvasWidth = gridWidth * cellSize; // 12 * 40 = 480px
         const canvasHeight = gridHeight * cellSize; // 8 * 40 = 320px
