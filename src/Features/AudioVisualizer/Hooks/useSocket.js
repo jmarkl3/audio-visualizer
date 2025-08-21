@@ -17,7 +17,7 @@ const useSocket = (url, active = false, verbose = false) => {
             console.log(toLog)
     }
 
-
+    // If the url or active state changes open or close the socket
     useEffect(() => {
         // If it is not active close the socket
         if (!active) {
@@ -56,7 +56,7 @@ const useSocket = (url, active = false, verbose = false) => {
     }, [active, url])
 
     // Sending data 
-    const send = (data, event = 'message') => {
+    const send = (data, event = 'update-data') => {
         // If there is a connected socket emit the data
         if (socketRef.current && isConnectedRef.current) {
             socketRef.current.emit(event, data)

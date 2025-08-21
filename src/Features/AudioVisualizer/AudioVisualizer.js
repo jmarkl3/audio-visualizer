@@ -1,13 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Switch, Upload } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import "./AudioVisualizer.css"
-import GridSimulator from "./GridSimulator.js"
+import GridSimulator from "./GridSimulators/GridSimulator.js"
 import { useGridGenerator } from './Hooks/useGridGenerator.js';
 import useSocket from './Hooks/useSocket.js';
+import { useGridGenerator8x12 } from './Hooks/useGridGenerator8x12.js';
+import GridSimulator8x12 from './GridSimulators/GridSimulator8x12.js';
 
 export default function AudioVisualizer() {
 
+    // The url to connect to 
+    // const apiUrl = "https://audio-visualizer-api.onrender.com" // 'http://localhost:8080'
+    const apiUrl = 'http://localhost:8080'
     // Url generated on upload
     const [audioUrl, setAudioUrl] = useState()
     // Name for display
@@ -32,9 +38,10 @@ export default function AudioVisualizer() {
     const audioRef = useRef()
 
     // This hook maintains an up to date grid (refreshing about 60 times/second)
-    const { getGrid } = useGridGenerator(audioRef);
+    // const { getGrid } = useGridGenerator(audioRef);
+    const { getGrid } = useGridGenerator8x12(audioRef);
     // This hook maintains a Socket.io socket 
-    const { send, socket, isConnected: socketIsConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
+    const { send, socket, isConnected: socketIsConnected } = useSocket(apiUrl, sendGridData || receiveGridData);
 
     // Upload processing
     function processFile(file){
@@ -52,6 +59,13 @@ export default function AudioVisualizer() {
 
     // Local and sending: Updating grid (Interval polling method)
     useEffect(() => {
+
+        // Ping the api so it spins up (free tier web service hosting)
+        axios.get(`${apiUrl}/ping`)
+            .then(res => console.log("API Ping Response: ", res))
+            .catch(err => console.log("API Ping Error: ", err))
+        
+        // Interval polling the grid data
         const interval = setInterval(() => {
             // When not in receive mode
             if(!receiveGridDataRef.current){
@@ -64,7 +78,7 @@ export default function AudioVisualizer() {
                 
                 // If send is on send the data via the socket
                 if(sendGridDataRef.current)
-                    send(newGrid)
+                    send(newGrid, "update-grid-8x12")
             }
         }, 50); // Update 20 times per second
         return () => clearInterval(interval);
@@ -81,7 +95,7 @@ export default function AudioVisualizer() {
           socket.on('update-grid', handleUpdate);
         }
       
-        // On re-run (socket or receiveGridData change) cleanup the listener
+        // On re-run (socket connection or receiveGridData change) cleanup the listener
         return () => {
           if (socket) {
             socket.off('update-grid', handleUpdate);
@@ -112,7 +126,8 @@ export default function AudioVisualizer() {
             </div>
 
             {/* Display */}
-            <GridSimulator gridData={gridData}></GridSimulator>
+            {/* <GridSimulator gridData={gridData}></GridSimulator> */}
+            <GridSimulator8x12 gridData={gridData}></GridSimulator8x12>
 
             {/* Audio Player */}
             <div className='audioControllerContainer'>
