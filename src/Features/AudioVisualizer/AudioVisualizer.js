@@ -14,14 +14,14 @@ export default function AudioVisualizer() {
     const [audioName, setAudioName] = useState()
     const [gridData, setGridData] = useState()
     const [sendGridData, setSendGridData] = useState()
-    const [recieveGridData, setRecieveGridData] = useState()
+    const [receiveGridData, setReceiveGridData] = useState()
     const audioRef = useRef()
 
     
     // Custom hook keeps an up to date grid (refreshing about 60 times/second)
     const { gridData: generagedGridData } = useGridGenerator(audioRef);
     
-    const { send, request, socket, isConnected } = useSocket('http://localhost:8080', sendGridData || recieveGridData);
+    const { send, request, socket, isConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
 
     function processFile(file){
         if(!file) return
@@ -35,12 +35,51 @@ export default function AudioVisualizer() {
         // Not actually uploading the file
         return false;
     }
-    
-
+   
+    // When the generagedGridData updates update the local state and send (if sending is on)  
     useEffect(() => {
-    //    console.log("new grid data: ", gridData)
-       setGridData(generagedGridData)
+        
+        //console.log("new grid data: ", gridData)
+       
+        // When not receiving we want to update state and if sending send
+        if(!receiveGridData){
+
+            // Update local state
+            setGridData(generagedGridData)
+            
+            // If send is on send the data via the socket
+            if(sendGridData)
+                send(generagedGridData)
+        }
+        
     }, [generagedGridData])
+
+    // When receiveGridData or the socket changes listen for updates
+    useEffect(() => {
+
+        // Callback function so it can be removed in cleanup
+        const handleUpdate = (newGrid) => setGridData(newGrid);
+      
+        // If there is a socket and receiveGridData is on create a listener
+        if (socket && receiveGridData) {
+          socket.on('update-grid', handleUpdate);
+        }
+      
+        // On rerun (socket or receiveGridData change) cleanup the listener
+        return () => {
+          if (socket) {
+            socket.off('update-grid', handleUpdate);
+          }
+        };
+    }, [socket, receiveGridData]);
+
+
+    // Interval method
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //     }, 50); // Update 20 times per second
+    //     return () => clearInterval(interval);
+    // }, [])
 
     return (
         <div className='audioVisualizerContainer'>
@@ -79,32 +118,34 @@ export default function AudioVisualizer() {
                     
                     {/* Switches */}
                     <div className='switchesBox'>
+
+                        {/* Send switch */}
                         <div className='switchBox'>
                             <Switch 
                                 checked={sendGridData} 
                                 onChange={newState => {
                                     setSendGridData(newState)
                                     if(newState)
-                                        setRecieveGridData(false)
+                                        setReceiveGridData(false)
                                 }}                            ></Switch>
                             {sendGridData ? "Sending...":"Send"}
                         </div>
+
+                        {/* Receive switch */}
                         <div className='switchBox'>
                             <Switch 
-                                checked={recieveGridData} 
+                                checked={receiveGridData} 
                                 onChange={newState => {
-                                    setRecieveGridData(newState)
+                                    setReceiveGridData(newState)
                                     if(newState)
                                         setSendGridData(false)
                                 }}
                             ></Switch>
-                            {recieveGridData ? "receiving...":"receive"}
+                            {receiveGridData ? "receiving...":"receive"}
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
     )
 }
