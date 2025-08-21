@@ -5,24 +5,43 @@ import "./AudioVisualizer.css"
 import GridSimulatorWAS from "./GridSimulatorWAS.js"
 import GridSimulator from "./GridSimulator.js"
 import AudioSync from "./AudioSync.js"
-import { useGridGenerator } from './Hooks/useGridGenerator.js';
+// import { useGridGenerator } from './Hooks/useGridGenerator.js';
+import { useGridGenerator } from './Hooks/useGridGenerator-1.js';
 import useSocket from './Hooks/useSocket.js';
 
 export default function AudioVisualizer() {
 
+    // Url generated on upload
     const [audioUrl, setAudioUrl] = useState()
+    // Name for display
     const [audioName, setAudioName] = useState()
+    // Grid data for display
     const [gridData, setGridData] = useState()
-    const [sendGridData, setSendGridData] = useState()
-    const [receiveGridData, setReceiveGridData] = useState()
+    // Maintaining state and a ref for useEffect
+    const [sendGridData, setSendGridDataState] = useState()
+    const sendGridDataRef = useRef()
+    const setSendGridData = (newValue) => {
+        setSendGridDataState(newValue)
+        sendGridDataRef.current = newValue
+    }
+    // Receive state and ref 
+    const [receiveGridData, setReceiveGridDataState] = useState()
+    const receiveGridDataRef = useRef()
+    const setReceiveGridData = (newValue) => {
+        setReceiveGridDataState(newValue)
+        receiveGridDataRef.current = newValue
+    }
+    // Ref to the audio player
     const audioRef = useRef()
 
     
     // Custom hook keeps an up to date grid (refreshing about 60 times/second)
-    const { gridData: generagedGridData } = useGridGenerator(audioRef);
+    // const { gridData: generagedGridData } = useGridGenerator(audioRef);
+    const { getGrid } = useGridGenerator(audioRef);
     
     const { send, request, socket, isConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
 
+    // Upload processing
     function processFile(file){
         if(!file) return
 
@@ -35,26 +54,28 @@ export default function AudioVisualizer() {
         // Not actually uploading the file
         return false;
     }
-   
-    // When the generagedGridData updates update the local state and send (if sending is on)  
+
+    // Local and sending: Updating grid (Interval polling method)
     useEffect(() => {
-        
-        //console.log("new grid data: ", gridData)
-       
-        // When not receiving we want to update state and if sending send
-        if(!receiveGridData){
+        const interval = setInterval(() => {
+            // When not in receive mode
+            if(!receiveGridDataRef.current){
 
-            // Update local state
-            setGridData(generagedGridData)
-            
-            // If send is on send the data via the socket
-            if(sendGridData)
-                send(generagedGridData)
-        }
-        
-    }, [generagedGridData])
+                // Get the current grid ref value
+                const newGrid = getGrid()
+                
+                // Update local state
+                setGridData(newGrid)
+                
+                // If send is on send the data via the socket
+                if(sendGridDataRef.current)
+                    send(newGrid)
+            }
+        }, 50); // Update 20 times per second
+        return () => clearInterval(interval);
+    }, [])
 
-    // When receiveGridData or the socket changes listen for updates
+    // For receiving: When receiveGridData or the socket changes listen for updates
     useEffect(() => {
 
         // Callback function so it can be removed in cleanup
@@ -72,14 +93,6 @@ export default function AudioVisualizer() {
           }
         };
     }, [socket, receiveGridData]);
-
-
-    // Interval method
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //     }, 50); // Update 20 times per second
-    //     return () => clearInterval(interval);
-    // }, [])
 
     return (
         <div className='audioVisualizerContainer'>
