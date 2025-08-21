@@ -2,11 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button, Switch, Upload } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
 import "./AudioVisualizer.css"
-import GridSimulatorWAS from "./GridSimulatorWAS.js"
 import GridSimulator from "./GridSimulator.js"
-import AudioSync from "./AudioSync.js"
-// import { useGridGenerator } from './Hooks/useGridGenerator.js';
-import { useGridGenerator } from './Hooks/useGridGenerator-1.js';
+import { useGridGenerator } from './Hooks/useGridGenerator.js';
 import useSocket from './Hooks/useSocket.js';
 
 export default function AudioVisualizer() {
@@ -17,7 +14,7 @@ export default function AudioVisualizer() {
     const [audioName, setAudioName] = useState()
     // Grid data for display
     const [gridData, setGridData] = useState()
-    // Maintaining state and a ref for useEffect
+    // Maintaining state for rendering and a ref for useEffect
     const [sendGridData, setSendGridDataState] = useState()
     const sendGridDataRef = useRef()
     const setSendGridData = (newValue) => {
@@ -34,12 +31,11 @@ export default function AudioVisualizer() {
     // Ref to the audio player
     const audioRef = useRef()
 
-    
     // Custom hook keeps an up to date grid (refreshing about 60 times/second)
     // const { gridData: generagedGridData } = useGridGenerator(audioRef);
     const { getGrid } = useGridGenerator(audioRef);
     
-    const { send, request, socket, isConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
+    const { send, socket, isConnected: socketIsConnected } = useSocket('http://localhost:8080', sendGridData || receiveGridData);
 
     // Upload processing
     function processFile(file){
@@ -82,7 +78,7 @@ export default function AudioVisualizer() {
         const handleUpdate = (newGrid) => setGridData(newGrid);
       
         // If there is a socket and receiveGridData is on create a listener
-        if (socket && receiveGridData) {
+        if (socket && socketIsConnected && receiveGridData) {
           socket.on('update-grid', handleUpdate);
         }
       
@@ -92,7 +88,7 @@ export default function AudioVisualizer() {
             socket.off('update-grid', handleUpdate);
           }
         };
-    }, [socket, receiveGridData]);
+    }, [socketIsConnected, receiveGridData]);
 
     return (
         <div className='audioVisualizerContainer'>
@@ -123,7 +119,7 @@ export default function AudioVisualizer() {
             <div className='audioControllerContainer'>
                 <div className='audioControllerBox'>
                    
-                    {/* Loaded song name */}
+                    {/* Name of loaded audio file */}
                     <div style={{marginBottom: "10px"}}>{audioName}</div>
                     
                     {/* Audio controller */}
