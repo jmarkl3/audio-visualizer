@@ -1,10 +1,10 @@
 import { useRef, useEffect, useCallback } from 'react'
 
 // Custom hook to keep an up-to-date 12x8 grid of 0s or 1s based on audio input
-export function useGridGenerator8x12(audioRef) {
+export function useGridGenerator8x12(audioRef, gridHeight = 8, gridWidth = 12) {
     const gridDataRef = useRef(
-        Array(12).fill().map(() => 
-            Array(8).fill(0)
+        Array(gridHeight).fill().map(() => 
+            Array(gridWidth).fill(0)
         )
     )
     const analyserRef = useRef(null)
@@ -43,8 +43,8 @@ export function useGridGenerator8x12(audioRef) {
                     const data = new Uint8Array(analyserRef.current.frequencyBinCount)
                     analyserRef.current.getByteFrequencyData(data)
 
-                    const gridWidth = 12
-                    const gridHeight = 8
+                    // const gridHeight = 8
+                    // const gridWidth = 12
                     const bins = []
                     const samplesPerBin = Math.floor(data.length / gridWidth)
                     
@@ -59,9 +59,9 @@ export function useGridGenerator8x12(audioRef) {
                         bins.push(sum / samplesPerBin)
                     }
 
-                    // Update the grid data (12x8 of 0s and 1s)
-                    const newGrid = Array(gridWidth).fill().map(() => 
-                        Array(gridHeight).fill(0)
+                    // Update the grid data (8x12 grid of 0s and 1s)
+                    const newGrid = Array(gridHeight).fill().map(() => 
+                        Array(gridWidth).fill(0)
                     )
 
                     for (let x = 0; x < gridWidth; x++) {
@@ -71,7 +71,7 @@ export function useGridGenerator8x12(audioRef) {
 
                         for (let y = 0; y < gridHeight; y++) {
                             if (gridHeight - 1 - y < height) {
-                                newGrid[x][y] = 1 // Set to 1 where intensity is sufficient
+                                newGrid[y][x] = 1 // Set to 1 where intensity is sufficient
                             }
                         }
                     }
