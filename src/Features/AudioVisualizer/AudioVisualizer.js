@@ -41,7 +41,7 @@ export default function AudioVisualizer() {
     // This hook maintains an up to date grid (refreshing about 60 times/second)
     // const { getGrid } = useGridGenerator(audioRef) // RGB version
     const { getGrid } = useGridGenerator8x12(audioRef)
-    // This hook maintains a Socket.io socket 
+    // This hook maintains a Socket.io connection 
     const { send, socket, isConnected: socketIsConnected } = useSocket(apiUrl, sendGridData || receiveGridData)
 
     // Upload processing
@@ -133,7 +133,6 @@ export default function AudioVisualizer() {
             </div>
 
             {/* Display */}
-            {/* <GridSimulator gridData={gridData}></GridSimulator> */}
             <GridSimulator8x12 gridData={gridData} useHeightBasedColor></GridSimulator8x12>
 
             {/* Audio Player */}
